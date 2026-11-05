@@ -1,0 +1,14 @@
+const { CANDIDATE_ROOT } = await import('./candidate-root.mjs');
+import fs from 'node:fs';import path from 'node:path';import vm from 'node:vm';import {pathToFileURL} from 'node:url';
+const root=process.env.A00_DATA_ROOT;if(!root)throw Error('A00 required');const C=CANDIDATE_ROOT;const imp=p=>import(pathToFileURL(path.join(C,p)));
+const aff=await imp('qq-bridge/src/personality-affect.mjs'),ad=await imp('qq-bridge/src/personality-affinity-adapter.mjs'),{createPersonalityStore}=await imp('qq-bridge/src/personality-store.mjs');const src=fs.readFileSync(path.join(C,'qq-bridge/src/bridge.js'),'utf8');const a=src.indexOf('function bridgeClassifyIncomingEvent('),b=src.indexOf('function processIncomingPersonalityEvent(',a);const results=[];
+for(const mode of ['single-positive','same-set-retry','padding-replay','mentioned-not-actor']){
+ const store=createPersonalityStore({dataRoot:path.join(root,mode)});let messages=[{messageId:'m1',userId:'11',text:'谢谢你帮了我'}];let requests;
+ if(mode==='padding-replay'){messages.push(...Array.from({length:40},(_,i)=>({messageId:'pad'+i,userId:'11',text:'嗯'})));requests=Array.from({length:40},(_,i)=>ad.normalizeBumpRequest({uin:'11',key:'group:1',delta:.03,evidenceIds:['m1','pad'+i]}).request);}
+ else if(mode==='mentioned-not-actor'){messages=[{messageId:'m1',userId:'11',targetUserId:'22',text:'抱歉，是我错了'}];requests=[ad.normalizeBumpRequest({uin:'22',targetId:'22',key:'group:1',delta:.03,evidenceIds:['m1']}).request];}
+ else requests=Array.from({length:mode==='single-positive'?1:40},()=>ad.normalizeBumpRequest({uin:'11',key:'group:1',delta:.03,evidenceIds:['m1']}).request);
+ let applied=0;const ctx=vm.createContext({path,ROOT:path.join(root,'qq-bridge'),affinityRequestFile:ad.requestFile,readJsonSafe:()=>requests,recordPendingObservation:()=>{},observationEventFor:ad.observationEventFor,classifyIncomingKind:aff.classifyIncomingKind,classifyIncomingEvent:aff.classifyIncomingEvent,classifyRelationshipEvidence:aff.classifyRelationshipEvidence,atomicWriteJson:()=>{},log:()=>{},submitPersonalityEventObject:e=>{const s=store.loadSnapshot(e.scope);const r=store.submitEvent(e,s.revision);if(r.applied)applied++;return r;}});vm.runInContext(src.slice(a,b),ctx);ctx.drainAffinityRequests('group:1',{unread:messages,recentMessages:[]});const r=store.loadRelationship(mode==='mentioned-not-actor'?'22':'11',{scope:'group:1'});results.push({id:mode,ok:mode==='mentioned-not-actor'?applied===0:applied===1,applied,relationship:r.relationship});store.close();
+}
+results.push({id:'direct-apology-classification',ok:aff.classifyRelationshipEvidence({text:'对不起，是我错了'}).kind==='repair.apology',actual:aff.classifyRelationshipEvidence({text:'对不起，是我错了'}),control:aff.classifyRelationshipEvidence({text:'抱歉，是我错了'})});
+fs.writeFileSync(path.join(root,'results.json'),JSON.stringify({results},null,2));for(const r of results)console.log(JSON.stringify(r));if(results.some(r=>!r.ok))process.exitCode=1;
+

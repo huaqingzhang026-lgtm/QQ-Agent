@@ -1,0 +1,10 @@
+{
+  "name": "pluto-mcp-media",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pluto 的出图与语音 MCP",
+  "type": "module",
+  "exports": { "./locale/*.json": "./locale/*.json", "./icon": "./icon.svg" },
+  "files": ["cordis.patch.yml", "locale/*.json", "icon.svg"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

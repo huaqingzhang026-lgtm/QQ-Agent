@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pluto · Affinity",
+    "description": "In-process affinity ledger tools (get / bump / set / note / list) backed by qq-bridge/state/affinity.json."
+  }
+}

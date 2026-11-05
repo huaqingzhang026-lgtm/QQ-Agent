@@ -1,0 +1,12 @@
+# Pluto · 本地小模型：local-llm
+# 上游是 llama.cpp Vulkan 的 :11435（run-local-llm.cmd 启动），本包只连不改。
+- insert:
+    - id: pluto-mcp-local-llm
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: local-llm
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\local-llm-mcp\server.mjs'
+        toolCallTimeoutMs: 120000

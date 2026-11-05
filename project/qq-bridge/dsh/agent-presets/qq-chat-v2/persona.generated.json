@@ -1,0 +1,10 @@
+{
+  "version": "b3e53a077f7a",
+  "renderedHash": "b3e53a077f7a20137ace768dea0219c5d194da7b400a1c7c9fd9ef73b30e5563",
+  "promptHash": "8fd9a3223df986364b191eb5d992350675cb823a9f4f1ad979a2c018c959993b",
+  "tplHash": "86ab9570d5c9201778b4b41d0e5c7b2838beba7c0a7b825f3e41e7efbcd9e499",
+  "promptLines": 301,
+  "outLines": 360,
+  "generatedAt": "2026-11-05T10:02:42.881Z",
+  "note": "生成物：改 persona.prompt.txt 后运行 tools/persona-build.mjs，不要手改 agent.cordis.yml"
+}

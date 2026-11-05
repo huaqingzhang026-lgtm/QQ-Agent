@@ -1,0 +1,10 @@
+{
+  "name": "pluto-mcp-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pluto 桥接自带的 5 个 MCP 服务（QQ 工具 / 宿主控制 / 安全搜索 / 运维 / B站本地）",
+  "type": "module",
+  "exports": { "./locale/*.json": "./locale/*.json", "./icon": "./icon.svg" },
+  "files": ["cordis.patch.yml", "locale/*.json", "icon.svg"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

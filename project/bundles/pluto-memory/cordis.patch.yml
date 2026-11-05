@@ -1,0 +1,11 @@
+# Pluto · 跨会话记忆（原生工具）
+#
+# 替代 memory-mcp 子进程：同样的 6 个工具、同一份数据源与同一套 scope 令牌校验
+# （复用 qq-bridge/src/memory-scope.js 与 state/memory-scope.key，桥接签发的令牌
+# 在本进程里照样有效）。
+#
+# 工具名保留 mcp__memory__ 前缀：人格正文、life-loop 心跳台词、
+# qq-tool-restrict 白名单都按这个前缀写死。
+- insert:
+    - id: pluto-memory
+      name: pluto-memory

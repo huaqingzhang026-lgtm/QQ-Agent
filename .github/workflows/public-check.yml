@@ -1,0 +1,16 @@
+name: Public source check
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  privacy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node tools/check-public-release.mjs
+      - run: node tools/test-public-release-scan.mjs

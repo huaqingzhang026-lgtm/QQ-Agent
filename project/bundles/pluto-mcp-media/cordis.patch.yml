@@ -1,0 +1,21 @@
+# Pluto · 图像与语音：image / voice
+# image 依赖 state/image-sends.json 的配额；voice 走 edge-tts + whisper。
+- insert:
+    - id: pluto-mcp-image
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: image
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\image-mcp\server.mjs'
+        toolCallTimeoutMs: 120000
+    - id: pluto-mcp-voice
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: voice
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\voice-mcp\server.mjs'
+        toolCallTimeoutMs: 120000

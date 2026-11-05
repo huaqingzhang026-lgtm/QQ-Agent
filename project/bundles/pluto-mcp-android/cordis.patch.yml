@@ -1,0 +1,17 @@
+# Pluto · 安卓设备桥
+#
+# 把原先内联在 dsh-home/profiles/web/cordis.patch.yml 的 mcp-android 行
+# 收进可安装的 bundle；行 id 加 `pluto-` 前缀以免与旧的 profile 行冲突，
+# serverName 保持 `android` 不变，所以工具名仍是 mcp__android__*。
+#
+# 路径是本机绝对路径（bundle 只打包行，不会自动改路径）；换机器时改这里。
+- insert:
+    - id: pluto-mcp-android
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: android
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\tools\android-mcp\server.mjs'
+        toolCallTimeoutMs: 120000

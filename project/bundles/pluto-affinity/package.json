@@ -1,0 +1,14 @@
+{
+  "name": "pluto-affinity",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pluto 的好感度记账（原生工具，替代 affinity-mcp 子进程）",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": ["index.js", "cordis.patch.yml", "locale/*.json", "icon.svg"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

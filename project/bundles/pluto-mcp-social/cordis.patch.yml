@@ -1,0 +1,30 @@
+# Pluto · 三平台社交 MCP：B站 / 微博 / 小红书
+# 行 id 加 pluto- 前缀避免与 profile 里的旧 mcp-* 行冲突；serverName 保持不变。
+- insert:
+    - id: pluto-mcp-bilibili
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: bilibili
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\bili-mcp\guard.mjs'
+        toolCallTimeoutMs: 180000
+    - id: pluto-mcp-weibo
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: weibo
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\weibo-mcp\server.mjs'
+        toolCallTimeoutMs: 120000
+    - id: pluto-mcp-xiaohongshu
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: xiaohongshu
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\xhs-mcp\guard-proxy.mjs'
+        toolCallTimeoutMs: 180000

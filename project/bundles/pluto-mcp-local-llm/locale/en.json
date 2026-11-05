@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pluto · Local Small Model",
+    "description": "Connects the llama.cpp-backed helper used for keyword extraction, scene writing and name matching."
+  }
+}

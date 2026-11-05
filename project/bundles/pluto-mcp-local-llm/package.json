@@ -1,0 +1,10 @@
+{
+  "name": "pluto-mcp-local-llm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pluto 的本地小模型 MCP（llama.cpp / Qwen2.5-3B）",
+  "type": "module",
+  "exports": { "./locale/*.json": "./locale/*.json", "./icon": "./icon.svg" },
+  "files": ["cordis.patch.yml", "locale/*.json", "icon.svg"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

@@ -1,0 +1,49 @@
+# Dependencies and caches
+node_modules/
+.pnpm-store/
+.npm-cache/
+__pycache__/
+*.pyc
+
+# Local secrets and configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+config.json
+cookie.json
+cookies.json
+.credentials.*
+console-token
+*.key
+*.pem
+*.p12
+*.pfx
+
+# User and runtime material
+state/
+sessions/
+storages/
+backups/
+dsh-home/
+agent-home/
+audio/
+edge-profile*/
+Default/
+*.log
+*.log.err
+*.sqlite
+*.sqlite-*
+*.db
+*.bak
+*.bak-*
+*.zip
+*.tar.gz
+
+# Private handoff material never belongs in the public copy
+archive/
+work/
+migration/
+/A05*/
+test-env/
+public-release-validation.local.json

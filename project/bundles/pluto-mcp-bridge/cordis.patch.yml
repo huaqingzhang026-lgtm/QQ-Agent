@@ -1,0 +1,49 @@
+# Pluto · 桥接自带 MCP：snowluma / snowluma-host / web-search-safe / agent-ops / bili-local
+#
+# 注意：前三条原本由 qq-bridge/scripts/setup-dsh.mjs 写入 profile 的
+# `# === qq-bridge MCP BEGIN/END ===` 受管区块。启用本包前必须先改那个脚本，
+# 否则每次跑 setup 都会把同样的行再写一遍，导致同一 serverName 重复挂载。
+- insert:
+    - id: pluto-mcp-snowluma
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: snowluma
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\qq-bridge\src\mcp-snowluma-safe.js'
+        toolCallTimeoutMs: 725000
+    - id: pluto-mcp-snowluma-host
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: snowluma-host
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\qq-bridge\src\mcp-host-server.js'
+    - id: pluto-mcp-web-search-safe
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: web-search-safe
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\qq-bridge\src\mcp-web-search-safe.js'
+    - id: pluto-mcp-agent-ops
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: agent-ops
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\qq-bridge\src\agent-ops-server.mjs'
+        toolCallTimeoutMs: 300000
+    - id: pluto-mcp-bili-local
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: bili-local
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\qq-bridge\src\bili-local-server.mjs'
+        toolCallTimeoutMs: 240000

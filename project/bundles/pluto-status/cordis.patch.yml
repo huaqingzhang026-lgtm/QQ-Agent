@@ -1,0 +1,7 @@
+# Pluto · 只读状态看板
+#
+# 宿主半注册 GET /pluto/status（同源，客户端直接 fetch，不用 iframe）；
+# 客户端半把看板挂在 settings.section，作为「Pluto 状态」设置页。
+- insert:
+    - id: pluto-status
+      name: pluto-status

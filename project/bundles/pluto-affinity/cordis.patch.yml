@@ -1,0 +1,11 @@
+# Pluto · 好感度（原生工具）
+#
+# 替代 affinity-mcp 子进程：同样的 5 个工具、同一份 state/affinity.json，
+# 只是从「独立 stdio 进程」变成 DSH 进程内的原生注册。
+#
+# 工具名保留 mcp__affinity__ 前缀是**刻意的兼容选择**：
+# 人格正文与 qq-tool-restrict 白名单里都写死了 mcp__affinity__，改名会让她
+# 照着 prompt 调一个不存在的工具。前缀在这里只是名字，不代表还走 MCP。
+- insert:
+    - id: pluto-affinity
+      name: pluto-affinity

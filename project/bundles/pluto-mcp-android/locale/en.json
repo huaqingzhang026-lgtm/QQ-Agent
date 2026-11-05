@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pluto · Android Device Bridge",
+    "description": "Connects the ADB-based Android MCP server so the agent can inspect and drive the MuMu emulator."
+  }
+}

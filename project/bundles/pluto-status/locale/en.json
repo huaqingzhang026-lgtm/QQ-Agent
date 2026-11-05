@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pluto Status Board",
+    "description": "Read-only dashboard page for Pluto's bridge state: conversations, affinity, image quota, live status and today's token usage."
+  }
+}

@@ -1,0 +1,21 @@
+# Pluto · 记忆与好感度：memory / affinity
+# 纯本地文件读写，无外部网络依赖。
+- insert:
+    - id: pluto-mcp-memory
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: memory
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\memory-mcp\server.mjs'
+        toolCallTimeoutMs: 120000
+    - id: pluto-mcp-affinity
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: affinity
+        transport: stdio
+        command: 'node'
+        args:
+          - 'C:\QQ-Agent\project\affinity-mcp\server.mjs'
+        toolCallTimeoutMs: 60000

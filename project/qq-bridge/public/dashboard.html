@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pluto // Control Deck</title>
+<style>
+:root{
+  --bg:#060a12; --card:rgba(15,24,41,.86); --card2:rgba(19,31,52,.72); --line:rgba(120,170,255,.14);
+  --text:#e8f0ff; --muted:#8295b7; --cyan:#5ee7ff; --blue:#6d8cff; --violet:#b38cff;
+  --green:#53f2b0; --amber:#ffc76b; --red:#ff6b86; --shadow:0 20px 60px rgba(0,0,0,.38);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:
+ radial-gradient(1100px 620px at 80% -10%,rgba(109,140,255,.18),transparent 60%),
+ radial-gradient(900px 520px at 0% 100%,rgba(94,231,255,.08),transparent 60%),
+ linear-gradient(160deg,#050812,#0a1020 45%,#060a12);
+ color:var(--text);font:14px/1.55 "Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.2;
+ background-image:linear-gradient(rgba(120,170,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,170,255,.05) 1px,transparent 1px);
+ background-size:46px 46px;mask-image:radial-gradient(circle at 45% 30%,#000 30%,transparent 80%)}
+button{font:inherit;cursor:pointer;color:var(--text);background:rgba(94,231,255,.07);border:1px solid rgba(94,231,255,.22);border-radius:10px;padding:8px 12px}
+button:hover{background:rgba(94,231,255,.14);border-color:rgba(94,231,255,.45)}
+a{color:var(--cyan);text-decoration:none}
+.app{display:flex;min-height:100vh;position:relative;z-index:1}
+aside{width:232px;flex:0 0 232px;border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;background:rgba(6,11,20,.78);backdrop-filter:blur(18px);display:flex;flex-direction:column;gap:16px}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 7px 14px;border-bottom:1px solid var(--line)}
+.orb{width:38px;height:38px;border-radius:50%;background:conic-gradient(from 120deg,var(--cyan),var(--blue),var(--violet),#ff7ac8,var(--cyan));position:relative;box-shadow:0 0 24px rgba(94,231,255,.32)}
+.orb:after{content:"";position:absolute;inset:5px;border-radius:50%;background:#080e1a;border:1px solid rgba(255,255,255,.14)}
+.brand h1{margin:0;font-size:17px;letter-spacing:.16em}
+.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:.22em;margin-top:2px}
+nav{display:flex;flex-direction:column;gap:5px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;padding:9px 10px;color:var(--muted);font-size:13px}
+.nav-btn .ico{width:18px;text-align:center;font-size:14px;opacity:.9}
+.nav-btn.active{color:var(--text);background:linear-gradient(90deg,rgba(94,231,255,.12),rgba(109,140,255,.07));border-color:rgba(94,231,255,.22)}
+.nav-btn:hover{color:var(--text)}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:11px}
+main{flex:1;min-width:0;padding:20px 24px 34px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.topbar h2{margin:0;font-size:18px;letter-spacing:.08em;font-weight:600}
+.topbar .sub{color:var(--muted);font-size:11px;margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.clock{font-variant-numeric:tabular-nums;color:var(--muted);font-size:11px;letter-spacing:.12em}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(10,17,31,.72);font-size:11px;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);box-shadow:0 0 9px currentColor}
+.dot.ok{background:var(--green);color:var(--green)}.dot.warn{background:var(--amber);color:var(--amber)}.dot.bad{background:var(--red);color:var(--red)}
+.page{display:none}.page.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px 14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.kpi .label{color:var(--muted);font-size:10px;letter-spacing:.13em;text-transform:uppercase}
+.kpi .value{font-size:21px;font-weight:650;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .sub{color:var(--muted);font-size:10.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grid{display:grid;grid-template-columns:1.1fr 1fr .62fr;gap:13px;align-items:start}.overview-grid{align-items:stretch}.conv-card{display:flex;flex-direction:column;height:100%}.conv-list{flex:1;min-height:0;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(109,140,255,.35) transparent}.conv-row{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:rgba(10,17,31,.42);cursor:pointer;transition:.16s}.conv-row:hover{border-color:rgba(94,231,255,.3);background:rgba(94,231,255,.06)}.conv-row .cn{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.conv-row .ct{color:var(--muted);font-size:10px;text-align:right}.conv-row .cb{display:flex;gap:5px;grid-column:1/-1;flex-wrap:wrap}.conv-row .see{color:var(--muted);font-size:10px;margin-left:auto}.conv-foot{border-top:1px solid var(--line);padding:9px 12px;color:var(--muted);font-size:10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px;align-items:start}
+.col{display:flex;flex-direction:column;gap:13px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(94,231,255,.04),transparent)}
+.card-h h3{margin:0;font-size:11px;letter-spacing:.18em;color:#bcd0f4;font-weight:600;text-transform:uppercase}
+.card-h .mini{color:var(--muted);font-size:10.5px}
+.card-b{padding:13px 14px}
+.tabs{display:flex;gap:6px;padding:9px 12px 0;flex-wrap:wrap}
+.tab{padding:5px 9px;border-radius:8px;border:1px solid transparent;color:var(--muted);font-size:11px;background:transparent;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab.active{color:var(--text);background:rgba(94,231,255,.1);border-color:rgba(94,231,255,.26)}
+.feed{max-height:390px;overflow:auto;padding:11px 13px 14px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(109,140,255,.35) transparent}
+.msg{display:flex;gap:8px;align-items:flex-start}
+.msg .who{flex:0 0 58px;font-size:10.5px;color:var(--muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg .bubble{flex:1;background:rgba(109,140,255,.075);border:1px solid rgba(109,140,255,.15);border-radius:10px;padding:7px 9px;font-size:12.5px;word-break:break-word}
+.msg.self .who{color:var(--cyan)}
+.msg.self .bubble{background:rgba(94,231,255,.07);border-color:rgba(94,231,255,.2)}
+.msg .time{display:block;color:var(--muted);font-size:9.5px;margin-top:2px}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.metric{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:rgba(10,17,31,.42)}
+.metric .n{font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}
+.metric .l{color:var(--muted);font-size:10px;letter-spacing:.08em}
+.timeline{display:flex;flex-direction:column;max-height:330px;overflow:auto;scrollbar-width:thin}
+.tli{display:grid;grid-template-columns:70px 1fr;gap:8px;padding:7px 0;border-bottom:1px dashed rgba(120,170,255,.1);font-size:12px}
+.tli:last-child{border-bottom:0}
+.tli .t{color:var(--muted);font-size:10px}
+.tli .x{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:12px}
+.row .k{color:var(--muted);flex:0 0 auto}
+.row .v{text-align:right;word-break:break-word}
+.badge{font-size:9.5px;padding:2px 6px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.badge.ok{color:var(--green);border-color:rgba(83,242,176,.3);background:rgba(83,242,176,.07)}
+.badge.warn{color:var(--amber);border-color:rgba(255,199,107,.3);background:rgba(255,199,107,.07)}
+.badge.bad{color:var(--red);border-color:rgba(255,107,134,.3);background:rgba(255,107,134,.07)}
+.bars{display:flex;align-items:flex-end;gap:3px;height:56px;padding:5px 0 0}
+.bar{flex:1;min-width:3px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--cyan),rgba(94,231,255,.12));opacity:.8}
+.video{display:flex;gap:8px;padding:7px 0;border-bottom:1px dashed rgba(120,170,255,.1)}
+.video:last-child{border:0}
+.video .bv{font-size:9.5px;color:var(--cyan);white-space:nowrap;padding-top:1px}
+.video .vt{font-size:12px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.video .vi{font-size:10px;color:var(--muted);margin-top:2px}
+.chain{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:10.5px}
+.node{padding:3px 7px;border-radius:6px;background:rgba(109,140,255,.1);border:1px solid rgba(109,140,255,.2);white-space:nowrap}
+.arrow{color:var(--muted)}
+.locked{position:fixed;inset:0;z-index:50;background:rgba(4,7,14,.94);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px)}
+.locked .box{width:min(410px,92vw);background:var(--card);border:1px solid var(--line);border-radius:17px;padding:22px;box-shadow:var(--shadow)}
+.locked h2{margin:0 0 5px;font-size:18px;letter-spacing:.08em}
+.locked p{color:var(--muted);font-size:12px;margin:0 0 13px}
+.locked input{width:100%;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:#070d18;color:var(--text);outline:none}
+.locked button{width:100%;margin-top:9px;padding:10px;background:linear-gradient(90deg,rgba(94,231,255,.2),rgba(179,140,255,.18));border-color:rgba(94,231,255,.35)}
+.empty{color:var(--muted);font-size:11.5px;padding:10px 0;text-align:center}
+.foot{margin-top:14px;color:var(--muted);font-size:10.5px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;right:18px;bottom:18px;z-index:60;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 13px;font-size:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);transition:.2s}
+.toast.show{opacity:1;transform:none}
+@media (max-width:1180px){.kpis{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr 1fr}.grid .col:last-child{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}.grid .col:last-child .card{flex:1 1 300px}}
+@media (max-width:860px){aside{position:fixed;z-index:40;width:64px;flex:0 0 64px;padding:14px 8px}.brand h1,.brand small,.nav-btn span:not(.ico),.side-foot{display:none}.brand{justify-content:center;padding:2px 0 12px}.nav-btn{justify-content:center;padding:10px 0}.nav-btn .ico{font-size:18px}main{margin-left:64px;padding:14px}.kpis{grid-template-columns:repeat(2,1fr)}.grid,.grid2{grid-template-columns:1fr}.grid .col:last-child{flex-direction:column}.page-title{font-size:16px}}
+/* readability pass: 整体字号 +1px 级别 */
+body{font-size:14.5px;line-height:1.62}
+.clock,.pill{font-size:12px}
+.brand small{font-size:10px}
+.nav-btn{font-size:13.5px}
+.kpi .label{font-size:11px}
+.kpi .sub{font-size:11.5px}
+.card-h h3{font-size:12px}
+.card-h .mini{font-size:11px}
+.tab{font-size:12px}
+.msg .who{font-size:11.5px}
+.msg .bubble{font-size:13.5px}
+.msg .time{font-size:10.5px}
+.metric .l{font-size:11px}
+.tli{font-size:13px}
+.tli .t{font-size:11px}
+.row{font-size:13px}
+.badge{font-size:10.5px}
+.video .vt{font-size:13px}
+.video .vi{font-size:11px}
+.chain{font-size:11.5px}
+.conv-row .cn{font-size:13.5px}
+.conv-row .ct,.conv-row .see{font-size:11px}
+.conv-foot{font-size:11px}
+.empty{font-size:12.5px}
+.foot{font-size:11.5px}
+/* hierarchy pass: 强标题、弱边框、弱辅助信息 */
+:root{--muted:#7186a8;--line:rgba(120,170,255,.09)}
+.page-title{color:#f6faff;font-weight:700;letter-spacing:.1em}
+.topbar .sub{color:#7186a8}
+.kpi{border-color:rgba(120,170,255,.1);background:linear-gradient(180deg,rgba(16,26,45,.92),rgba(12,20,36,.86))}
+.kpi .label{color:#7186a8;font-weight:600}
+.kpi .value{color:#f7fbff;font-weight:720;text-shadow:0 0 18px rgba(94,231,255,.12)}
+.kpi .sub{color:#6c82a6}
+.card{border-color:rgba(120,170,255,.1)}
+.card-h{background:linear-gradient(180deg,rgba(94,231,255,.035),transparent);border-bottom-color:rgba(120,170,255,.08)}
+.card-h h3{color:#dce9ff;font-weight:700;letter-spacing:.16em}
+.card-h .mini{color:#5f7597}
+.nav-btn{color:#7186a8}
+.nav-btn.active{color:#f1f8ff;border-color:rgba(94,231,255,.28);background:linear-gradient(90deg,rgba(94,231,255,.14),rgba(109,140,255,.06))}
+.row .k{color:#6c82a6}
+.row .v{color:#dce9ff}
+.tli .t,.msg .time,.video .vi,.conv-row .ct{color:#5f7597}
+.tli .x,.msg .bubble,.video .vt,.conv-row .cn{color:#e5efff}
+.badge{color:#7f93b5;border-color:rgba(120,170,255,.1);background:rgba(10,17,31,.3)}
+.badge.ok{color:#63f5bd}.badge.warn{color:#ffd58c}.badge.bad{color:#ff8da2}
+.conv-row{background:rgba(9,15,28,.38);border-color:rgba(120,170,255,.1)}
+.conv-foot{color:#5f7597}
+/* visual pass: 极简冷灰 */
+:root{
+  --bg:#0c1117;--card:#111922;--card2:#141d27;--line:#26313d;--text:#dfe7ef;--muted:#7c8a99;
+  --cyan:#9cc4d4;--blue:#8ea9c9;--violet:#aaa8c4;--green:#7fc9a8;--amber:#d9b57a;--red:#cf7d8a;
+  --shadow:0 4px 18px rgba(0,0,0,.18);
+}
+body{background:linear-gradient(160deg,#0b1016,#0e141c 45%,#0b1016)}
+body:before{opacity:.08}
+aside{background:rgba(10,15,21,.9)}
+.orb{background:conic-gradient(from 120deg,#9cc4d4,#7f95a8,#aaa8c4,#b48d9e,#9cc4d4);box-shadow:none}
+.orb:after{background:#0d131a;border-color:rgba(255,255,255,.08)}
+.kpi{background:var(--card);border-color:var(--line);box-shadow:var(--shadow)}
+.kpi:after{background:linear-gradient(90deg,#6f8b9e,transparent)}
+.kpi .value{color:#edf3f8;text-shadow:none}
+.card{background:var(--card);border-color:var(--line);box-shadow:var(--shadow)}
+.card-h{background:none;border-bottom-color:var(--line)}
+.card-h h3{color:#c8d5df;letter-spacing:.14em}
+.page-title{color:#edf3f8;text-shadow:none}
+.nav-btn{color:#778593}
+.nav-btn.active{color:#edf3f8;background:#1a242e;border-color:#33414f}
+.nav-btn:hover{color:#edf3f8}
+.brand h1{color:#e5edf4;letter-spacing:.14em}
+.pill{background:#111922;border-color:var(--line)}
+button{background:#151f29;border-color:#33414f;color:#dbe4ec}
+button:hover{background:#1b2733;border-color:#4b5d6d}
+.conv-row{background:#0f171f;border-color:var(--line)}
+.conv-row:hover{background:#151f29;border-color:#3d4d5c}
+.badge{background:#0f171f;border-color:var(--line)}
+.badge.ok{color:#7fc9a8;border-color:#355a4a;background:#101c18}
+.badge.warn{color:#d9b57a;border-color:#5a4a33;background:#1a1710}
+.badge.bad{color:#cf7d8a;border-color:#5a353d;background:#1a1114}
+.dot.ok{background:#7fc9a8;color:#7fc9a8;box-shadow:none}
+.dot.warn{background:#d9b57a;color:#d9b57a;box-shadow:none}
+.dot.bad{background:#cf7d8a;color:#cf7d8a;box-shadow:none}
+.msg .bubble{background:#121b24;border-color:#26313d}
+.msg.self .bubble{background:#141e26;border-color:#314250}
+.metric{background:#0f171f;border-color:var(--line)}
+.bar{background:linear-gradient(180deg,#9cc4d4,rgba(156,196,212,.12))}
+.chain .node{background:#121b24;border-color:#2c3947}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="orb"></div><div><h1>PLUTO</h1><small>CONTROL DECK</small></div></div>
+    <nav id="nav">
+      <button class="nav-btn active" data-page="overview"><span class="ico">◈</span><span>总览</span></button>
+      <button class="nav-btn" data-page="conversations"><span class="ico">▤</span><span>会话流</span></button>
+      <button class="nav-btn" data-page="memory"><span class="ico">◎</span><span>记忆</span></button>
+      <button class="nav-btn" data-page="persona"><span class="ico">✧</span><span>人格</span></button>
+      <button class="nav-btn" data-page="life"><span class="ico">☀</span><span>生活</span></button>
+      <button class="nav-btn" data-page="platform"><span class="ico">▶</span><span>平台</span></button>
+      <button class="nav-btn" data-page="ops"><span class="ico">⌁</span><span>运维</span></button>
+    </nav>
+    <div class="side-foot">
+      <span><span class="dot" id="side-dot"></span> <span id="side-state">connecting…</span></span>
+      <span id="side-mode">mode —</span>
+      <span>read-only console</span>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div><h2 class="page-title" id="page-title">总览</h2><div class="sub" id="page-sub">Pluto 运行观测台</div></div>
+      <div class="top-actions">
+        <span class="clock" id="clock">--:--:--</span>
+        <span class="pill"><span class="dot" id="top-bridge"></span><span id="top-bridge-text">Bridge</span></span>
+        <span class="pill"><span class="dot" id="top-health"></span><span id="top-health-text">Health</span></span>
+        <button id="refresh">刷新</button>
+      </div>
+    </div>
+
+    <section class="page active" id="page-overview">
+      <div class="kpis">
+        <div class="kpi"><div class="label">模式</div><div class="value" id="k-mode">—</div><div class="sub" id="k-mode-sub">DSH —</div></div>
+        <div class="kpi"><div class="label">记忆事件</div><div class="value" id="k-events">—</div><div class="sub" id="k-people">人物 —</div></div>
+        <div class="kpi"><div class="label">人格版本</div><div class="value" id="k-persona">—</div><div class="sub" id="k-persona-sub">证据 —</div></div>
+        <div class="kpi"><div class="label">B站模式</div><div class="value" id="k-bili">—</div><div class="sub" id="k-bili-sub">评论 —</div></div>
+        <div class="kpi"><div class="label">直播</div><div class="value" id="k-live">—</div><div class="sub" id="k-live-sub">—</div></div>
+        <div class="kpi"><div class="label">Android</div><div class="value" id="k-android">—</div><div class="sub" id="k-android-sub">token 隔离</div></div>
+      </div>
+      <div class="grid overview-grid">
+        <div class="col">
+          <div class="card conv-card"><div class="card-h"><h3>会话</h3><span class="mini" id="ov-conv-hint">—</span></div><div class="conv-list" id="ov-conv-list"><div class="empty">暂无会话</div></div><div class="conv-foot" id="ov-conv-foot"></div></div>
+        </div>
+        <div class="col">
+          <div class="card"><div class="card-h"><h3>记忆时间线</h3><span class="mini" id="ov-mem-hint">—</span></div><div class="card-b"><div class="metrics" id="ov-metrics"></div><div class="timeline" id="ov-timeline"></div></div></div>
+          <div class="card"><div class="card-h"><h3>健康</h3><span class="mini" id="ov-health-hint">—</span></div><div class="card-b"><div class="rows" id="ov-health"></div></div></div>
+        </div>
+        <div class="col">
+          <div class="card"><div class="card-h"><h3>B站</h3><span class="mini" id="ov-bili-hint">—</span></div><div class="card-b"><div id="ov-bili"></div></div></div>
+          <div class="card"><div class="card-h"><h3>直播</h3><span class="mini" id="ov-live-hint">—</span></div><div class="card-b" id="ov-live"></div></div>
+          <div class="card"><div class="card-h"><h3>Android</h3><span class="mini" id="ov-android-hint">—</span></div><div class="card-b" id="ov-android"></div></div>
+          <div class="card"><div class="card-h"><h3>活跃度</h3><span class="mini">24h</span></div><div class="card-b"><div class="bars" id="ov-bars"></div><div class="foot" style="margin-top:2px"><span>消息密度</span><span id="ov-pulse">—</span></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-conversations">
+      <div class="grid2" style="grid-template-columns:1fr .36fr">
+        <div class="card"><div class="card-h"><h3>会话流</h3><span class="mini" id="cv-hint">—</span></div><div class="tabs" id="cv-tabs"></div><div class="feed" style="max-height:620px" id="cv-feed"><div class="empty">等待消息…</div></div></div>
+        <div class="col"><div class="card"><div class="card-h"><h3>会话概览</h3><span class="mini">all</span></div><div class="card-b"><div class="rows" id="cv-list"></div></div></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-memory">
+      <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="label">Events</div><div class="value" id="mm-events">—</div><div class="sub">时间线事件</div></div>
+        <div class="kpi"><div class="label">People</div><div class="value" id="mm-people">—</div><div class="sub">人物档案</div></div>
+        <div class="kpi"><div class="label">Platform</div><div class="value" id="mm-platform">—</div><div class="sub">平台内容</div></div>
+        <div class="kpi"><div class="label">Skills</div><div class="value" id="mm-skills">—</div><div class="sub">条件反射</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>时间线</h3><span class="mini" id="mm-hint">最近 7 天</span></div><div class="card-b"><div class="timeline" style="max-height:620px" id="mm-timeline"></div></div></div>
+        <div class="card"><div class="card-h"><h3>平台内容</h3><span class="mini">B站</span></div><div class="card-b"><div id="mm-videos"></div></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-persona">
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>人格演化</h3><span class="mini" id="pp-hint">evolution</span></div><div class="card-b"><div class="metrics" style="grid-template-columns:repeat(3,1fr)" id="pp-metrics"></div><div class="rows" style="margin-top:12px" id="pp-rows"></div></div></div>
+        <div class="card"><div class="card-h"><h3>最近变更</h3><span class="mini">append-only</span></div><div class="card-b"><div class="timeline" id="pp-list"></div></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-life">
+      <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi"><div class="label">天气</div><div class="value" id="lf-weather">—</div><div class="sub" id="lf-weather-sub">北京</div></div>
+        <div class="kpi"><div class="label">状态</div><div class="value" id="lf-mood">—</div><div class="sub" id="lf-sleep">—</div></div>
+        <div class="kpi"><div class="label">精力</div><div class="value" id="lf-energy">—</div><div class="sub">0–1</div></div>
+        <div class="kpi"><div class="label">日期</div><div class="value" id="lf-date">—</div><div class="sub" id="lf-weekday">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="col">
+          <div class="card"><div class="card-h"><h3>今日课程</h3><span class="mini">courses</span></div><div class="card-b"><div class="rows" id="lf-courses"></div></div></div>
+          <div class="card"><div class="card-h"><h3>日常</h3><span class="mini">routine</span></div><div class="card-b"><div class="timeline" id="lf-routine"></div></div></div>
+        </div>
+        <div class="col">
+          <div class="card"><div class="card-h"><h3>社交 / 突发事件</h3><span class="mini">social / surprise</span></div><div class="card-b"><div class="timeline" id="lf-social"></div></div></div>
+          <div class="card"><div class="card-h"><h3>可聊话题</h3><span class="mini">topics</span></div><div class="card-b"><div class="rows" id="lf-topics"></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-platform">
+      <div class="grid2">
+        <div class="col"><div class="card"><div class="card-h"><h3>B站最近观看</h3><span class="mini" id="pf-bili-hint">—</span></div><div class="card-b"><div id="pf-videos"></div></div></div></div>
+        <div class="col"><div class="card"><div class="card-h"><h3>B站配置</h3><span class="mini">browse</span></div><div class="card-b"><div class="rows" id="pf-browse"></div></div></div><div class="card"><div class="card-h"><h3>直播</h3><span class="mini">live</span></div><div class="card-b" id="pf-live"></div></div><div class="card"><div class="card-h"><h3>Android</h3><span class="mini">control</span></div><div class="card-b" id="pf-android"></div></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-ops">
+      <div class="grid2">
+        <div class="col"><div class="card"><div class="card-h"><h3>健康探针</h3><span class="mini" id="op-hint">probe</span></div><div class="card-b"><div class="rows" id="op-health"></div></div></div><div class="card"><div class="card-h"><h3>自动恢复</h3><span class="mini">auto-heal</span></div><div class="card-b"><div class="rows" id="op-heal"></div></div></div></div>
+        <div class="col"><div class="card"><div class="card-h"><h3>模型路由</h3><span class="mini">task chains</span></div><div class="card-b" id="op-models"></div></div><div class="card"><div class="card-h"><h3>最近活动</h3><span class="mini">activity</span></div><div class="card-b"><div class="timeline" id="op-activity"></div></div></div></div>
+      </div>
+    </section>
+
+    <div class="foot"><span>Pluto Control Deck · localhost only · read-only</span><span id="last-refresh">—</span></div>
+  </main>
+</div>
+
+<div class="locked" id="lock">
+  <div class="box"><h2>Control Deck</h2><p>需要桥接控制台令牌。带 <code>?token=</code> 打开会自动保存。</p><input id="token" type="password" placeholder="console token" autocomplete="off"><button id="unlock">进入</button></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtTime = (t) => { if (!t) return '—'; const d = new Date(Number(t)); return isNaN(d) ? '—' : d.toLocaleString('zh-CN', {hour12:false, month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}); };
+const fmtClock = () => { $('#clock').textContent = new Date().toLocaleTimeString('zh-CN', {hour12:false}); };
+setInterval(fmtClock, 1000); fmtClock();
+let token = new URLSearchParams(location.search).get('token') || localStorage.getItem('pluto-console-token') || '';
+let data = null, activeKey = '', currentPage = (location.hash || '#overview').slice(1);
+const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200); };
+const dot = (el, ok, warn) => { if (el) el.className = 'dot ' + (ok ? 'ok' : warn ? 'warn' : 'bad'); };
+
+const titles = { overview:['总览','Pluto 运行观测台'], conversations:['会话流','最近聊天与未读状态'], memory:['记忆','统一时间线与长期记忆'], persona:['人格','演化层版本与证据'], life:['生活','今天发生了什么'], platform:['平台','B站 · 直播 · Android'], ops:['运维','健康、自动恢复与模型路由'] };
+function showPage(name) {
+  if (!titles[name]) name = 'overview';
+  currentPage = name;
+  document.querySelectorAll('.page').forEach((p) => p.classList.toggle('active', p.id === 'page-' + name));
+  document.querySelectorAll('.nav-btn').forEach((b) => b.classList.toggle('active', b.dataset.page === name));
+  $('#page-title').textContent = titles[name][0];
+  $('#page-sub').textContent = titles[name][1];
+  if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+}
+document.querySelectorAll('.nav-btn').forEach((b) => b.onclick = () => showPage(b.dataset.page));
+window.addEventListener('hashchange', () => showPage(location.hash.slice(1)));
+showPage(currentPage);
+
+async function load() {
+  try {
+    const r = await fetch('/api/dashboard', { headers: token ? { 'x-console-token': token } : {} });
+    if (r.status === 401 || r.status === 403) { localStorage.removeItem('pluto-console-token'); token = ''; $('#lock').style.display = 'flex'; return; }
+    const j = await r.json(); if (!j || j.ok === false) throw new Error(j.error || 'api error');
+    data = j; $('#lock').style.display = 'none'; render(j);
+  } catch (e) { toast('加载失败：' + e.message); }
+}
+
+function render(d) {
+  const hp = d.health || {}, checks = hp.checks || {};
+  const bridgeOk = d.dshReady === true, healthOk = hp.ok === true;
+  dot($('#side-dot'), bridgeOk && healthOk, bridgeOk); dot($('#top-bridge'), bridgeOk); dot($('#top-health'), healthOk, hp.at && !healthOk);
+  $('#side-state').textContent = bridgeOk ? (healthOk ? 'systems nominal' : 'degraded') : 'offline';
+  $('#side-mode').textContent = 'mode ' + (d.mode || '—');
+  $('#top-bridge-text').textContent = bridgeOk ? 'Bridge online' : 'Bridge offline';
+  $('#top-health-text').textContent = healthOk ? 'Health OK' : (hp.at ? 'Health degraded' : 'Health —');
+  $('#k-mode').textContent = d.mode || '—'; $('#k-mode-sub').textContent = 'DSH ' + (d.dshReady ? 'ready' : 'down') + (d.socialV2Paused ? ' · paused' : '');
+  $('#k-events').textContent = d.memory?.events ?? '—'; $('#k-people').textContent = '人物 ' + (d.memory?.people ?? '—') + ' · 平台 ' + (d.memory?.platform ?? '—') + ' · 全量';
+  $('#k-persona').textContent = 'v' + (d.persona?.version ?? 0); $('#k-persona-sub').textContent = '证据 ' + Number(d.persona?.score ?? 0).toFixed(1) + ' · 变更 ' + (d.persona?.changes ?? 0);
+  $('#k-bili').textContent = d.platform?.browse?.mode || '随机'; $('#k-bili-sub').textContent = d.platform?.browse?.dryRun ? 'dryRun · 只读生成' : '写操作已开';
+  $('#k-live').textContent = d.live?.status === 1 ? 'LIVE' : (d.live?.lastLiveAt ? 'OFFLINE' : '—'); $('#k-live-sub').textContent = '今日 ' + (d.live?.usedMinutes ?? 0) + ' 分钟 · 示例主播优先';
+  const androidActive = Number(d.android?.controlUntil || 0) > Date.now();
+  $('#k-android').textContent = androidActive ? 'FULL' : 'LOCKED'; $('#k-android-sub').textContent = 'token 隔离 · 授权至 ' + fmtTime(d.android?.controlUntil);
+  renderConversations(d.conversations || []);
+  renderOverview(d);
+  renderMemory(d.memory || {});
+  renderPersona(d.persona || {});
+  renderPlatform(d);
+  renderLife(d.life);
+  renderOps(d);
+  $('#last-refresh').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN', {hour12:false});
+}
+
+function convLabel(key) { return key.replace('group:', '群 ').replace('private:', '私 '); }
+function renderConversations(list) {
+  if (!list.length) return;
+  if (!activeKey || !list.some((c) => c.key === activeKey)) activeKey = list[0].key;
+  const tabs = (host, cb) => { host.innerHTML = list.slice(0, 9).map((c) => `<button class="tab ${c.key===activeKey?'active':''}" data-key="${esc(c.key)}">${esc(convLabel(c.key))}${c.unread?` · ${c.unread}`:''}</button>`).join(''); host.querySelectorAll('.tab').forEach((b) => b.onclick = () => { activeKey = b.dataset.key; cb(); }); };
+  const feed = (el, limit) => { const c = list.find((x) => x.key === activeKey); if (!c) return; el.innerHTML = (c.messages || []).slice(-limit).map((m) => `<div class="msg ${m.self?'self':''}"><div class="who">${esc(m.sender)}</div><div class="bubble">${esc(m.text)}<span class="time">${fmtTime(m.time)}${m.hasMedia?' · media':''}</span></div></div>`).join('') || '<div class="empty">暂无消息</div>'; el.scrollTop = el.scrollHeight; };
+  renderOverviewConversations(list);
+  tabs($('#cv-tabs'), () => { renderConversations(data.conversations || []); });
+  feed($('#cv-feed'), 60);
+  const conv = list.find((c) => c.key === activeKey);
+  if (conv) { $('#ov-conv-hint').textContent = `${conv.unread} 未读 · ${conv.pending} 待唤醒`; $('#cv-hint').textContent = `${conv.unread} 未读 · ${conv.pending} 待唤醒`; }
+  $('#cv-list').innerHTML = list.map((c) => `<div class="row"><span class="k">${esc(convLabel(c.key))}</span><span class="v">${c.unread} 未读 <span class="badge ${c.pending?'warn':''}">${c.pending} 待唤醒</span></span></div>`).join('');
+}
+
+function renderOverviewConversations(list) {
+  const host = $('#ov-conv-list');
+  if (!host) return;
+  host.innerHTML = list.map((c) => `<div class="conv-row" data-key="${esc(c.key)}"><div class="cn">${esc(convLabel(c.key))}</div><div class="ct">${fmtTime(c.lastAt)}</div><div class="cb"><span class="badge ${c.unread ? 'warn' : ''}">未读 ${c.unread}</span><span class="badge ${c.pending ? 'warn' : ''}">待唤醒 ${c.pending}</span><span class="see">去会话流 →</span></div></div>`).join('') || '<div class="empty">暂无会话</div>';
+  host.querySelectorAll('.conv-row').forEach((el) => el.onclick = () => { activeKey = el.dataset.key; showPage('conversations'); renderConversations(data.conversations || []); });
+  const groups = list.filter((c) => c.key.startsWith('group:')).length;
+  const privates = list.filter((c) => c.key.startsWith('private:')).length;
+  const unread = list.reduce((n, c) => n + (Number(c.unread) || 0), 0);
+  const pending = list.reduce((n, c) => n + (Number(c.pending) || 0), 0);
+  $('#ov-conv-foot').innerHTML = `<span>${groups} 群 · ${privates} 私聊 · 未读 ${unread} · 待唤醒 ${pending}</span><span>只显示会话卡片</span>`;
+}
+
+function renderOverview(d) {
+  const mem = d.memory || {}, tl = mem.timeline || [];
+  $('#ov-metrics').innerHTML = [['EVENTS · 全量',mem.events],['PEOPLE · 档案',mem.people],['PLATFORM · 全量',mem.platform],['SKILLS · 反射',mem.skills]].map(([l,n]) => `<div class="metric"><div class="n">${n??'—'}</div><div class="l">${l}</div></div>`).join('');
+  $('#ov-timeline').innerHTML = tl.length ? tl.slice().reverse().slice(0,8).map((e) => `<div class="tli"><div class="t">${fmtTime(e.occurred_at)}</div><div><div class="x">${esc(e.text)}</div></div></div>`).join('') : '<div class="empty">暂无时间线</div>';
+  $('#ov-mem-hint').textContent = '最近 7 天 · ' + tl.length + ' 条';
+  // health
+  const c = d.health?.checks || {}; const ports = c.ports || {};
+  const rows = [['端口', Object.entries(ports).map(([k,v]) => k+':'+(v?'✓':'✗')).join(' '), Object.values(ports).every(Boolean)], ['DSH', c.bridge?.dshReady?'ready':'down', c.bridge?.ok], ['SnowLuma', c.snowluma?.good?'good':'check', c.snowluma?.ok], ['队列', String(c.queue?.depth??'—'), c.queue?.ok], ['模型', c.model?.ok?'OK':'FAIL', c.model?.ok]];
+  $('#ov-health').innerHTML = rows.map(([k,v,ok]) => `<div class="row"><span class="k">${k}</span><span class="v">${esc(v)} <span class="badge ${ok?'ok':'bad'}">${ok?'OK':'CHECK'}</span></span></div>`).join('');
+  $('#ov-health-hint').textContent = d.health?.at ? '最后探针 ' + fmtTime(d.health.at) : '暂无探针';
+  // bili
+  const vids = d.platform?.videos || [];
+  $('#ov-bili').innerHTML = vids.length ? vids.slice(0,3).map((v) => `<div class="video"><div class="bv">${esc(v.bvid)}</div><div><div class="vt">${esc(v.title)}</div><div class="vi">${esc(v.interest || '')} · ${fmtTime(v.at)}</div></div></div>`).join('') : '<div class="empty">暂无观看记录</div>';
+  $('#ov-bili-hint').textContent = '最近 ' + vids.length + ' 条';
+  // live
+  const liveOn = d.live?.status === 1;
+  $('#ov-live').innerHTML = `<div class="rows"><div class="row"><span class="k">状态</span><span class="v"><span class="badge ${liveOn?'ok':''}">${liveOn?'LIVE':'OFFLINE'}</span></span></div><div class="row"><span class="k">标题</span><span class="v">${esc(d.live?.title || '—')}</span></div><div class="row"><span class="k">今日观看</span><span class="v">${d.live?.usedMinutes ?? 0} 分钟</span></div><div class="row"><span class="k">策略</span><span class="v">示例主播优先 / 兴趣漫游</span></div></div>`;
+  $('#ov-live-hint').textContent = liveOn ? 'on air' : 'standby';
+  // android
+  const active = Number(d.android?.controlUntil || 0) > Date.now();
+  $('#ov-android').innerHTML = `<div class="rows"><div class="row"><span class="k">状态</span><span class="v"><span class="badge ${active?'ok':'warn'}">${active?'FULL':'LOCKED'}</span></span></div><div class="row"><span class="k">隔离</span><span class="v">主人私聊 token</span></div><div class="row"><span class="k">root</span><span class="v">未开启</span></div><div class="row"><span class="k">禁止</span><span class="v">支付 / 改密 / 删账号</span></div></div>`;
+  $('#ov-android-hint').textContent = active ? 'authorized' : 'expired';
+  // bars
+  const convs = d.conversations || []; const now = Date.now(); const buckets = new Array(24).fill(0);
+  for (const cv of convs) for (const m of (cv.messages || [])) { const h = Math.floor((now - Number(m.time || 0)) / 3600000); if (h >= 0 && h < 24) buckets[23-h]++; }
+  const max = Math.max(1, ...buckets);
+  $('#ov-bars').innerHTML = buckets.map((n) => `<div class="bar" style="height:${Math.max(4, Math.round(n/max*50))}px" title="${n}"></div>`).join('');
+  $('#ov-pulse').textContent = buckets.reduce((a,b)=>a+b,0) + ' messages';
+}
+
+function renderMemory(mem) {
+  $('#mm-events').textContent = mem.events ?? '—'; $('#mm-people').textContent = mem.people ?? '—'; $('#mm-platform').textContent = mem.platform ?? '—'; $('#mm-skills').textContent = mem.skills ?? '—';
+  const tl = mem.timeline || [];
+  $('#mm-timeline').innerHTML = tl.length ? tl.slice().reverse().map((e) => `<div class="tli"><div class="t">${fmtTime(e.occurred_at)}</div><div><div class="x">${esc(e.text)}</div><div class="vi">${esc(e.actor_name || e.source || '')}</div></div></div>`).join('') : '<div class="empty">暂无时间线</div>';
+  $('#mm-hint').textContent = '最近 7 天 · ' + tl.length + ' 条';
+  const vids = data?.platform?.videos || [];
+  $('#mm-videos').innerHTML = vids.length ? vids.map((v) => `<div class="video"><div class="bv">${esc(v.bvid)}</div><div><div class="vt">${esc(v.title)}</div><div class="vi">${esc(v.interest || '')} · ${fmtTime(v.at)}</div></div></div>`).join('') : '<div class="empty">暂无平台内容</div>';
+}
+
+function renderPersona(p) {
+  const paused = Number(p.pausedUntil || 0) > Date.now();
+  $('#pp-metrics').innerHTML = [['版本','v'+(p.version??0)],['证据分',Number(p.score??0).toFixed(1)],['变更',p.changes??0]].map(([l,v]) => `<div class="metric"><div class="n">${esc(v)}</div><div class="l">${l}</div></div>`).join('');
+  $('#pp-rows').innerHTML = `<div class="row"><span class="k">状态</span><span class="v"><span class="badge ${paused?'warn':'ok'}">${paused?'PAUSED':'ACTIVE'}</span></span></div><div class="row"><span class="k">最近应用</span><span class="v">${fmtTime(p.lastAppliedAt)}</span></div><div class="row"><span class="k">存储</span><span class="v">agent-home/persona/evolution.md</span></div>`;
+  $('#pp-hint').textContent = 'v' + (p.version??0);
+  const list = p.recent || [];
+  $('#pp-list').innerHTML = list.length ? list.slice().reverse().map((c) => `<div class="tli"><div class="t">${fmtTime(c.at)}</div><div><div class="x">${esc(c.section || '变化')}：${esc(c.content)}</div><div class="vi">${esc(c.reason || '')}</div></div></div>`).join('') : '<div class="empty">暂无变更</div>';
+}
+
+function renderLife(d) {
+  if (!d) {
+    $('#lf-weather').textContent = '—'; $('#lf-weather-sub').textContent = '今天还没有生活档案';
+    $('#lf-mood').textContent = '—'; $('#lf-sleep').textContent = '—'; $('#lf-energy').textContent = '—'; $('#lf-date').textContent = '—'; $('#lf-weekday').textContent = '—';
+    ['#lf-courses','#lf-routine','#lf-social','#lf-topics'].forEach((s) => { const el = $(s); if (el) el.innerHTML = '<div class="empty">暂无数据</div>'; });
+    return;
+  }
+  $('#lf-weather').textContent = `${d.weather?.text || '—'} ${d.weather?.temp || ''}`.trim();
+  $('#lf-weather-sub').textContent = (d.weather?.city || '北京') + (d.weather?.rain != null ? ' · 降水 ' + d.weather.rain + '%' : '');
+  $('#lf-mood').textContent = d.state?.mood || '—'; $('#lf-sleep').textContent = d.state?.sleep || '—';
+  $('#lf-energy').textContent = Number(d.state?.energy ?? 0).toFixed(2);
+  $('#lf-date').textContent = d.date || '—'; $('#lf-weekday').textContent = [d.weekday, d.growth?.gradeLabel, d.growth?.semester, d.growth?.age ? d.growth.age + '岁' : ''].filter(Boolean).join(' · ');
+  $('#lf-courses').innerHTML = (d.courses || []).length ? d.courses.map((c) => `<div class="row"><span class="k">${esc(c.time || '')}</span><span class="v">${esc(c.name || '')} <span class="badge">${esc(c.place || '')}</span></span></div>`).join('') : '<div class="empty">今天没课</div>';
+  $('#lf-routine').innerHTML = (d.routine || []).length ? d.routine.map((x, i) => `<div class="tli"><div class="t">${String(i + 1).padStart(2, '0')}</div><div class="x">${esc(x)}</div></div>`).join('') : '<div class="empty">暂无日常</div>';
+  const social = [...(d.social || []).map((x) => ['社交', x]), ...(d.surprise || []).map((x) => ['意外', x])];
+  $('#lf-social').innerHTML = social.length ? social.map(([k, x]) => `<div class="tli"><div class="t">${k}</div><div class="x">${esc(x)}</div></div>`).join('') : '<div class="empty">今天没有社交/意外</div>';
+  $('#lf-topics').innerHTML = (d.topics || []).length ? d.topics.map((x) => `<div class="row"><span class="k">话题</span><span class="v">${esc(x)}</span></div>`).join('') : '<div class="empty">暂无</div>';
+}
+
+function renderPlatform(d) {
+  const vids = d.platform?.videos || [];
+  $('#pf-videos').innerHTML = vids.length ? vids.map((v) => `<div class="video"><div class="bv">${esc(v.bvid)}</div><div><div class="vt">${esc(v.title)}</div><div class="vi">${esc(v.interest || '')} · ${fmtTime(v.at)}</div></div></div>`).join('') : '<div class="empty">暂无观看记录</div>';
+  $('#pf-bili-hint').textContent = '最近 ' + vids.length + ' 条';
+  const b = d.platform?.browse || {};
+  $('#pf-browse').innerHTML = `<div class="row"><span class="k">模式</span><span class="v">${esc(b.mode || '随机')}</span></div><div class="row"><span class="k">dryRun</span><span class="v"><span class="badge ${b.dryRun?'warn':'ok'}">${b.dryRun?'true':'false'}</span></span></div><div class="row"><span class="k">评论上限</span><span class="v">${b.topComments || 0} / 天</span></div><div class="row"><span class="k">回复上限</span><span class="v">${b.replies || 0} / 小时</span></div>`;
+  $('#pf-live').innerHTML = `<div class="rows"><div class="row"><span class="k">状态</span><span class="v">${d.live?.status === 1 ? 'LIVE' : 'OFFLINE'}</span></div><div class="row"><span class="k">标题</span><span class="v">${esc(d.live?.title || '—')}</span></div><div class="row"><span class="k">今日</span><span class="v">${d.live?.usedMinutes ?? 0} 分钟</span></div></div>`;
+  const active = Number(d.android?.controlUntil || 0) > Date.now();
+  $('#pf-android').innerHTML = `<div class="rows"><div class="row"><span class="k">状态</span><span class="v">${active?'FULL':'LOCKED'}</span></div><div class="row"><span class="k">授权至</span><span class="v">${fmtTime(d.android?.controlUntil)}</span></div><div class="row"><span class="k">强制</span><span class="v">主人私聊 token</span></div></div>`;
+}
+
+function renderOps(d) {
+  const c = d.health?.checks || {}; const ports = c.ports || {};
+  const rows = [['端口', Object.entries(ports).map(([k,v]) => k+':'+(v?'✓':'✗')).join(' '), Object.values(ports).every(Boolean)], ['DSH', c.bridge?.dshReady?'ready':'down', c.bridge?.ok], ['SnowLuma', c.snowluma?.good?'good':'check', c.snowluma?.ok], ['唤醒队列', String(c.queue?.depth??'—'), c.queue?.ok], ['模型网关', c.model?.ok?'OK' + (c.model.inference?' · inference':''):'FAIL', c.model?.ok]];
+  $('#op-health').innerHTML = rows.map(([k,v,ok]) => `<div class="row"><span class="k">${k}</span><span class="v">${esc(v)} <span class="badge ${ok?'ok':'bad'}">${ok?'OK':'CHECK'}</span></span></div>`).join('');
+  $('#op-hint').textContent = d.health?.at ? fmtTime(d.health.at) : 'no probe';
+  const healed = c.healed || [];
+  $('#op-heal').innerHTML = healed.length ? healed.map((h) => `<div class="row"><span class="k">${esc(h.name)}</span><span class="v">${esc(h.ok ? '已触发' : (h.skipped || h.out || '失败'))}</span></div>`).join('') : '<div class="empty">最近没有自动恢复动作</div>';
+  const ch = (name, arr) => `<div class="rows" style="margin-bottom:10px"><div class="row"><span class="k">${name}</span><span class="badge">${arr?.length||0} 档</span></div><div class="chain">${(arr||[]).map((x,i)=>`<span class="node">${esc(x)}</span>${i<arr.length-1?'<span class="arrow">→</span>':''}`).join('')}</div></div>`;
+  $('#op-models').innerHTML = ch('CHAT', d.models?.chat) + ch('CODE', d.models?.code) + ch('SUMMARY', d.models?.summary);
+  const rawActs = d.activity || [];
+  const acts = Array.isArray(rawActs) ? rawActs : String(rawActs).split(/\n/).filter(Boolean).map((line) => { const m = /^\[([^\]]+)\]\s*(.*)$/.exec(line); return { at: m ? m[1] : '', text: m ? m[2] : line }; });
+  $('#op-activity').innerHTML = acts.length ? acts.slice(-12).reverse().map((a) => `<div class="tli"><div class="t">${esc(a.at || '')}</div><div class="x">${esc(a.text || '')}</div></div>`).join('') : '<div class="empty">暂无活动</div>';
+}
+
+$('#refresh').onclick = load;
+$('#unlock').onclick = () => { const v = $('#token').value.trim(); if (!v) return; token = v; localStorage.setItem('pluto-console-token', v); load(); };
+$('#token').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#unlock').click(); });
+load(); setInterval(load, 10000);
+</script>
+</body>
+</html>

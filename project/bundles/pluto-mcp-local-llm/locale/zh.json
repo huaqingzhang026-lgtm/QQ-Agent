@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pluto · 本地小模型",
+    "description": "连接 llama.cpp 上的本地 3B 模型，用于抽词、编场景、称呼补漏等低成本任务。"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pluto · 安卓设备桥",
+    "description": "连接基于 ADB 的 Android MCP 服务，让 agent 可以查看和操作 MuMu 模拟器。"
+  }
+}

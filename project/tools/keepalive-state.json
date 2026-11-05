@@ -1,0 +1,18 @@
+﻿{
+    "lastRestart":  {
+                        "HerLocalLLM":  1792938909109,
+                        "HerImageServer":  1792938909109,
+                        "HerSnowLuma":  1792939700319,
+                        "HerXHS":  1793082200328,
+                        "HerDSH":  1793104400061,
+                        "HerBridge":  1793200699906
+                    },
+    "restartsLastHour":  {
+                             "HerBridge":  0,
+                             "HerDSH":  0,
+                             "HerXHS":  0,
+                             "HerSnowLuma":  0,
+                             "HerLocalLLM":  0,
+                             "HerImageServer":  0
+                         }
+}
